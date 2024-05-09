@@ -19,7 +19,49 @@ namespace ZStore.PL.Areas.Admin.Controllers
             List<Category> objCategoryList = unitOfWork.Category.GetAll().ToList();
             return View(objCategoryList);
         }
-        public IActionResult Create()
+        public IActionResult Upsert(int? id)
+        {
+            Category category = new Category();
+            if (id is null || id == 0)
+            {
+                return View(category);
+            }
+            else
+            {
+                category = unitOfWork.Category.Get(u => u.Id == id);
+                return View(category);
+
+            }
+            // ViewBag.CategoryList = CategoryList;
+
+        }
+        [HttpPost]
+        public IActionResult Upsert(Category obj)
+        {
+            if (ModelState.IsValid)
+            {
+                if (obj.Id == 0)
+                {
+                    unitOfWork.Category.Add(obj);
+                    TempData["success"] = "Category is created successfully";
+
+                }
+                else
+                {
+                    unitOfWork.Category.Update(obj);
+                    TempData["success"] = "Category is updated successfully";
+                }
+
+                unitOfWork.Save();
+                return RedirectToAction("Index");
+            }
+            else
+            {
+
+                return View(obj);
+            }
+        }
+        /*public IActionResult Create()
         {
             return View();
         }
@@ -60,7 +102,7 @@ namespace ZStore.PL.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
             return View(newCategory);
-        }
+        }*/
 
         public IActionResult Delete(int? id)
         {
