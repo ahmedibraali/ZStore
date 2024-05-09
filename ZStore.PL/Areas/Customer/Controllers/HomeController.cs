@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using ZStore.Core;
 using System.Diagnostics;
-using ZStore.PL.Models;
 
-namespace ZStore.PL.Controllers
+namespace Store.PL.Areas.Customer.Controllers
 {
+    [Area("Customer")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

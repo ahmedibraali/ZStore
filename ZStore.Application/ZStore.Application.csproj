@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ZStore.Core\ZStore.Core.csproj" />
+    <ProjectReference Include="..\ZStore.Data\ZStore.Data.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,88 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+using ZStore.Core;
+using ZStore.Application.Repository.IRepository;
+
+namespace ZStore.PL.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    public class CategoryController : Controller
+    {
+        private readonly IUnitOfWork unitOfWork;
+
+        public CategoryController(IUnitOfWork _unitOfWork)
+        {
+            unitOfWork = _unitOfWork;
+        }
+        public IActionResult Index()
+        {
+            List<Category> objCategoryList = unitOfWork.Category.GetAll().ToList();
+            return View(objCategoryList);
+        }
+        public IActionResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Create(Category newCategory)
+        {
+            if (newCategory.Name == newCategory.DisplayOrder.ToString())
+                ModelState.AddModelError("name", "Display order can't exactly match the Name");
+            if (ModelState.IsValid)
+            {
+                unitOfWork.Category.Add(newCategory);
+                unitOfWork.Save();
+                TempData["success"] = "Category is created successfully";
+                return RedirectToAction("Index");
+            }
+            return View(newCategory);
+        }
+        public IActionResult Edit(int? id)
+        {
+            if (id == null || id == 0)
+                return NotFound();
+            Category categoryFromDb = unitOfWork.Category.Get(u => u.Id == id);
+            if (categoryFromDb == null)
+                return NotFound();
+            return View(categoryFromDb);
+        }
+        [HttpPost]
+        public IActionResult Edit(Category newCategory)
+        {
+            if (newCategory.Name == newCategory.DisplayOrder.ToString())
+                ModelState.AddModelError("name", "Display order can't exactly match the Name");
+            if (ModelState.IsValid)
+            {
+                unitOfWork.Category.Update(newCategory);
+                unitOfWork.Save();
+                TempData["success"] = "Category is updated successfully";
+
+                return RedirectToAction("Index");
+            }
+            return View(newCategory);
+        }
+
+        public IActionResult Delete(int? id)
+        {
+            if (id == null || id == 0)
+                return NotFound();
+            Category categoryFromDb = unitOfWork.Category.Get(u => u.Id == id);
+            if (categoryFromDb == null)
+                return NotFound();
+            return View(categoryFromDb);
+        }
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeletePOST(int? id)
+        {
+            Category? category = unitOfWork.Category.Get(u => u.Id == id);
+            if (category == null)
+                return NotFound();
+            unitOfWork.Category.Remove(category);
+            unitOfWork.Save();
+            TempData["success"] = "Category is deleted successfully";
+
+            return RedirectToAction("Index");
+
+        }
+    }
+}
