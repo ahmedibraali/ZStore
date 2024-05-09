@@ -21,7 +21,7 @@ namespace ZStore.PL.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> objCategoryList = unitOfWork.Product.GetAll().ToList();
+            List<Product> objCategoryList = unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
             
             return View(objCategoryList);
         }

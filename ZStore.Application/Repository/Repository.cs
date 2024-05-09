@@ -12,6 +12,7 @@ namespace ZStore.Application.Repository
         {
             db = _db;
             dbSet = db.Set<T>();
+            db.Products.Include(u => u.Category).Include(u=>u.CategoryId);
         }
         public void Add(T entity)
         {
@@ -19,16 +20,32 @@ namespace ZStore.Application.Repository
 
         }
 
-        public T Get(Expression<Func<T, bool>> filter)
+        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
             query=query.Where(filter);
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var incudeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(incudeProp);
+                }
+            }
             return query.FirstOrDefault();
         }
-
-        public IEnumerable<T> GetAll()
+        //Category , CoverType 
+        public IEnumerable<T> GetAll(string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach(var incudeProp in includeProperties
+                    .Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries ))
+                {
+                    query = query.Include(incudeProp);
+                }
+            }
             return query.ToList();
         }
 
