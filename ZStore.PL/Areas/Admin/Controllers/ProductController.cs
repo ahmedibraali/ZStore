@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using ZStore.Data;
 using ZStore.Application.Repository.IRepository;
 using ZStore.Core;
 using ZStore.Core.ViewModels;
+using ZStore.Utility;
 
 namespace ZStore.PL.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
+
     public class ProductController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -21,8 +23,8 @@ namespace ZStore.PL.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> objCategoryList = unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
-            
+            List<Product> objCategoryList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+
             return View(objCategoryList);
         }
         public IActionResult Upsert(int? id)
@@ -37,7 +39,7 @@ namespace ZStore.PL.Areas.Admin.Controllers
                 }),
                 Product = new Product()
             };
-            if(id is null || id == 0)
+            if (id is null || id == 0)
             {
                 return View(productVM);
             }
@@ -51,19 +53,19 @@ namespace ZStore.PL.Areas.Admin.Controllers
 
         }
         [HttpPost]
-        public IActionResult Upsert(ProductVM productVM,IFormFile? file)
+        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
                 string wwwRootPath = webHostEnvironment.WebRootPath;
-                if (file !=null)
+                if (file != null)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                     string productPath = Path.Combine(wwwRootPath, @"images\product");
                     if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
                     {
                         //delete old Image
-                        var oldImagePath = 
+                        var oldImagePath =
                             Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
                         if (System.IO.File.Exists(oldImagePath))
                         {
@@ -71,7 +73,7 @@ namespace ZStore.PL.Areas.Admin.Controllers
                         }
 
                     }
-                    using(var fileStream = new FileStream(Path.Combine(productPath, fileName),FileMode.Create))
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
                         file.CopyTo(fileStream);
                     }
@@ -79,14 +81,14 @@ namespace ZStore.PL.Areas.Admin.Controllers
                 }
                 if (productVM.Product.Id == 0)
                 {
-                unitOfWork.Product.Add(productVM.Product);
-                TempData["success"] = "Product is created successfully";
+                    unitOfWork.Product.Add(productVM.Product);
+                    TempData["success"] = "Product is created successfully";
 
                 }
                 else
                 {
-                unitOfWork.Product.Update(productVM.Product);
-                TempData["success"] = "Product is updated successfully";
+                    unitOfWork.Product.Update(productVM.Product);
+                    TempData["success"] = "Product is updated successfully";
 
                 }
                 unitOfWork.Save();
@@ -96,15 +98,15 @@ namespace ZStore.PL.Areas.Admin.Controllers
             {
                 productVM.CategoryList = unitOfWork.Category.GetAll().Select(u => new SelectListItem
                 {
-                    Text=u.Name,
-                    Value= u.Id.ToString()
+                    Text = u.Name,
+                    Value = u.Id.ToString()
                 });
-            return View(productVM);
+                return View(productVM);
             }
         }
-       
 
-        
+
+
 
         #region API CALLS
         [HttpGet]
@@ -116,7 +118,7 @@ namespace ZStore.PL.Areas.Admin.Controllers
         [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            var productToBeDeleted = unitOfWork.Product.Get(u=>u.Id == id);
+            var productToBeDeleted = unitOfWork.Product.Get(u => u.Id == id);
             if (productToBeDeleted == null)
             {
                 return Json(new { success = false, message = "Error while deleting" });

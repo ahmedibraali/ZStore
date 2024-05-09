@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZStore.PL", "ZStore.PL\ZStore.PL.csproj", "{E3B5983D-F950-45EC-BA67-D63FA5544B4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZStore.PL", "ZStore.PL\ZStore.PL.csproj", "{E3B5983D-F950-45EC-BA67-D63FA5544B4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZStore.Core", "ZStore.Core\ZStore.Core.csproj", "{020F2C1A-8150-4A6F-A012-D9295D176C2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZStore.Core", "ZStore.Core\ZStore.Core.csproj", "{020F2C1A-8150-4A6F-A012-D9295D176C2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZStore.Application", "ZStore.Application\ZStore.Application.csproj", "{E9E4988A-53D8-444D-8113-43F732ABD2A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZStore.Application", "ZStore.Application\ZStore.Application.csproj", "{E9E4988A-53D8-444D-8113-43F732ABD2A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZStore.Data", "ZStore.Data\ZStore.Data.csproj", "{F50CF454-6839-4895-8960-9BF8549241D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZStore.Data", "ZStore.Data\ZStore.Data.csproj", "{F50CF454-6839-4895-8960-9BF8549241D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZStore.Utility", "ZStore.Utility\ZStore.Utility.csproj", "{2F0CB06B-70B9-4B91-AF1D-3EB0E6BBE565}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{F50CF454-6839-4895-8960-9BF8549241D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F50CF454-6839-4895-8960-9BF8549241D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F50CF454-6839-4895-8960-9BF8549241D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F0CB06B-70B9-4B91-AF1D-3EB0E6BBE565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F0CB06B-70B9-4B91-AF1D-3EB0E6BBE565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F0CB06B-70B9-4B91-AF1D-3EB0E6BBE565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F0CB06B-70B9-4B91-AF1D-3EB0E6BBE565}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

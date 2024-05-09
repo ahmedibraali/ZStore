@@ -2,10 +2,13 @@
 
 using ZStore.Core;
 using ZStore.Application.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
+using ZStore.Utility;
 
 namespace ZStore.PL.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize (Roles =SD.Role_Admin)]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

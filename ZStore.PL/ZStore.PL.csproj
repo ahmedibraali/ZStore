@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ZStore.Application\ZStore.Application.csproj" />
     <ProjectReference Include="..\ZStore.Data\ZStore.Data.csproj" />
+    <ProjectReference Include="..\ZStore.Utility\ZStore.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>
