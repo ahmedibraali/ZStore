@@ -83,12 +83,13 @@ namespace ZStore.PL.Areas.Admin.Controllers
         [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            var CompanyToBeDeleted = unitOfWork.Company.Get(u => u.Id == id); 
+            var companyToBeDeleted = unitOfWork.Company.Get(u => u.Id == id); 
+            if(companyToBeDeleted == null)
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
             
-            unitOfWork.Company.Remove(CompanyToBeDeleted);
+            unitOfWork.Company.Remove(companyToBeDeleted);
             unitOfWork.Save();
 
 
