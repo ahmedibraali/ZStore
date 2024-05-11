@@ -10,6 +10,6 @@ namespace ZStore.Core.ViewModels
     {
         public IEnumerable<ShopingCart> ShopingCartList { get; set; }
 
-        public double OrderTotal { get; set; }
+        public OrderHeader OrderHeader { get; set; }
     }
 }
