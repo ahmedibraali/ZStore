@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using ZStore.Core;
 using System.Diagnostics;
 using ZStore.Application.Repository.IRepository;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Store.PL.Areas.Customer.Controllers
 {
@@ -24,8 +26,40 @@ namespace Store.PL.Areas.Customer.Controllers
         }
         public IActionResult Details(int id)
         {
-            Product product = unitOfWork.Product.Get(u=>u.Id==id,includeProperties:"Category");
-            return View(product);
+            ShopingCart cart = new()
+            {
+                Product = unitOfWork.Product.Get(u => u.Id == id, includeProperties: "Category"),
+                Count =1,
+                ProductId=id
+        };
+            
+            return View(cart);
+        }
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShopingCart shopingCart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            shopingCart.ApplicationUserId = userId;
+
+            ShopingCart cartFromDb = unitOfWork.ShopingCart.Get(u=>u.ApplicationUserId == userId &&
+            u.ProductId==shopingCart.ProductId);
+            if (cartFromDb != null)
+            {
+                //exist => update count
+                cartFromDb.Count += shopingCart.Count;
+                unitOfWork.ShopingCart.Update(cartFromDb);
+            }
+            else
+            {
+                //add cart record
+
+            unitOfWork.ShopingCart.Add(shopingCart);
+            }
+            TempData["success"] = "Cart was updated successfuly";
+            unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()

@@ -2,6 +2,7 @@
 using ZStore.Data;
 using ZStore.Application.Repository.IRepository;
 using System.Linq.Expressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace ZStore.Application.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
@@ -20,10 +21,15 @@ namespace ZStore.Application.Repository
 
         }
 
-        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
-            IQueryable<T> query = dbSet;
-            query=query.Where(filter);
+            IQueryable<T> query;
+            if (tracked) 
+                query = dbSet;
+            else
+                query = dbSet.AsNoTracking();
+            
+            query = query.Where(filter);
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach (var incudeProp in includeProperties
@@ -33,11 +39,15 @@ namespace ZStore.Application.Repository
                 }
             }
             return query.FirstOrDefault();
+
+
         }
         //Category , CoverType 
-        public IEnumerable<T> GetAll(string? includeProperties = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
+            if(filter != null)
+                query = query.Where(filter);
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach(var incudeProp in includeProperties
