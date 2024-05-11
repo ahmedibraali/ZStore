@@ -39,6 +39,7 @@ namespace Store.PL.Areas.Customer.Controllers
         [Authorize]
         public IActionResult Details(ShopingCart shopingCart)
         {
+            shopingCart.Id = 0;
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             shopingCart.ApplicationUserId = userId;

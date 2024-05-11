@@ -7,6 +7,8 @@
         IProductRepository Product { get; }
         IShopingCartRepository ShopingCart { get; }
         IApplicationUserRepository ApplicationUser { get; }
+        IOrderHeaderRepository OrderHeader { get; }
+        IOrderDetailRepository OrderDetail { get; }
         void Save();
     }
 }

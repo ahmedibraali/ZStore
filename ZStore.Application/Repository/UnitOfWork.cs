@@ -1,5 +1,6 @@
 ﻿using ZStore.Data;
 using ZStore.Application.Repository.IRepository;
+using ZStore.Core;
 
 
 namespace ZStore.Application.Repository
@@ -13,6 +14,8 @@ namespace ZStore.Application.Repository
         public ICompanyRepository Company { get; private set; }
         public IShopingCartRepository ShopingCart { get; private set; }
         public IApplicationUserRepository ApplicationUser { get; private set; }
+        public IOrderHeaderRepository OrderHeader { get; private set; }
+        public IOrderDetailRepository OrderDetail { get; private set; }
 
         
 
@@ -24,6 +27,9 @@ namespace ZStore.Application.Repository
             Company = new CompanyRepository(db);
             ShopingCart = new ShopingCartRepository(db);
             ApplicationUser = new ApplicationUserRepository(db);
+            OrderHeader = new OrderHeaderRepository(db);
+            OrderDetail = new OrderDetailRepository(db);
+            
         }
         public void Save()
         {
