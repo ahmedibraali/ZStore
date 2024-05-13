@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stripe.Checkout;
 using System.Security.Claims;
@@ -31,8 +30,8 @@ namespace ZStore.PL.Areas.Customer.Controllers
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             shopingCartVM = new()
             {
-                ShopingCartList = unitOfWork.ShopingCart.GetAll(u=>u.ApplicationUserId == userId ,
-                includeProperties:"Product"),
+                ShopingCartList = unitOfWork.ShopingCart.GetAll(u => u.ApplicationUserId == userId,
+                includeProperties: "Product"),
                 OrderHeader = new()
             };
             foreach (var cart in shopingCartVM.ShopingCartList)
@@ -70,61 +69,61 @@ namespace ZStore.PL.Areas.Customer.Controllers
         }
         [HttpPost]
         [ActionName("Summary")]
-		public IActionResult SummaryPost()
-		{
-			var claimsIdentity = (ClaimsIdentity)User.Identity;
-			var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+        public IActionResult SummaryPost()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-			shopingCartVM.ShopingCartList = unitOfWork.ShopingCart.GetAll(u => u.ApplicationUserId == userId,
+            shopingCartVM.ShopingCartList = unitOfWork.ShopingCart.GetAll(u => u.ApplicationUserId == userId,
                 includeProperties: "Product");
-			shopingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
+            shopingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
             shopingCartVM.OrderHeader.ApplicationUserId = userId;
 
             ApplicationUser applicationUser = unitOfWork.ApplicationUser.Get(u => u.Id == userId);
-			foreach (var cart in shopingCartVM.ShopingCartList)
-			{
-				cart.Price = GetPriceBasedOnQuantity(cart);
-				shopingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
-			}
+            foreach (var cart in shopingCartVM.ShopingCartList)
+            {
+                cart.Price = GetPriceBasedOnQuantity(cart);
+                shopingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+            }
             if (applicationUser.CompanyId.GetValueOrDefault() == 0)
             {
-				// Regular customer account and we need to capture payment
-				//// Cycle                         OrderStatus    |   PaymentStatus 
-				/// 1- Make Payment                Pending        |   Pending
-				/// 2- Order Confirmation          Approved       |   Approved
-				/// 3- Processing                  Proccessing    |   Approved
-				/// 4- Shipped                     Shipped        |   Approved
+                // Regular customer account and we need to capture payment
+                //// Cycle                         OrderStatus    |   PaymentStatus 
+                /// 1- Make Payment                Pending        |   Pending
+                /// 2- Order Confirmation          Approved       |   Approved
+                /// 3- Processing                  Proccessing    |   Approved
+                /// 4- Shipped                     Shipped        |   Approved
                 shopingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
-				shopingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
-			}
+                shopingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+            }
             else
             {
-				// Company user account
-				//// Cycle                         OrderStatus    |   PaymentStatus 
-				/// 1- Order Confirmation          Approved       |   ApprovedForDelayedPayment
-				/// 2- Processing                  Proccessing    |   ApprovedForDelayedPayment
-				/// 3- Shipped                     Shipped        |   ApprovedForDelayedPayment
-				/// 4- Make Payment                Shipped        |   Approved        
-				/// (Company Has 30 days to make payment after order is shipped)
-				shopingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
-				shopingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
-			}
+                // Company user account
+                //// Cycle                         OrderStatus    |   PaymentStatus 
+                /// 1- Order Confirmation          Approved       |   ApprovedForDelayedPayment
+                /// 2- Processing                  Proccessing    |   ApprovedForDelayedPayment
+                /// 3- Shipped                     Shipped        |   ApprovedForDelayedPayment
+                /// 4- Make Payment                Shipped        |   Approved        
+                /// (Company Has 30 days to make payment after order is shipped)
+                shopingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
+                shopingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+            }
             unitOfWork.OrderHeader.Add(shopingCartVM.OrderHeader);
             unitOfWork.Save();
-			foreach(var cart in shopingCartVM.ShopingCartList)
-			{
+            foreach (var cart in shopingCartVM.ShopingCartList)
+            {
                 OrderDetail orderDetail = new()
                 {
                     ProductId = cart.ProductId,
                     OrderHeaderId = shopingCartVM.OrderHeader.Id,
-                    Price=cart.Price,
+                    Price = cart.Price,
                     Count = cart.Count
 
-				};
+                };
                 unitOfWork.OrderDetail.Add(orderDetail);
                 unitOfWork.Save();
-			}
-			if (applicationUser.CompanyId.GetValueOrDefault() == 0)
+            }
+            if (applicationUser.CompanyId.GetValueOrDefault() == 0)
             {
                 // Regular customer account and we need to capture payment
                 //stripe Logic
@@ -136,22 +135,22 @@ namespace ZStore.PL.Areas.Customer.Controllers
                     LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
                     Mode = "payment"
                 };
-                
+
                 foreach (var item in shopingCartVM.ShopingCartList)
                 {
                     var sessionLineItem = new SessionLineItemOptions
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmount = (long)(item.Price*100), //$15.25 => 1525
-                            Currency="usd",
+                            UnitAmount = (long)(item.Price * 100), //$15.25 => 1525
+                            Currency = "usd",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = item.Product.Title,
 
                             }
                         },
-                        Quantity=item.Count,
+                        Quantity = item.Count,
                     };
                     options.LineItems.Add(sessionLineItem);
                 }
@@ -162,17 +161,17 @@ namespace ZStore.PL.Areas.Customer.Controllers
                 Response.Headers.Add("Location", session.Url);
                 return new StatusCodeResult(303);
             }
-            return RedirectToAction(nameof(OrderConfirmation), new {id=shopingCartVM.OrderHeader.Id});
-		}
+            return RedirectToAction(nameof(OrderConfirmation), new { id = shopingCartVM.OrderHeader.Id });
+        }
         public IActionResult OrderConfirmation(int id)
         {
-            OrderHeader orderHeader = unitOfWork.OrderHeader.Get(u=>u.Id==id , includeProperties:"ApplicationUser");
+            OrderHeader orderHeader = unitOfWork.OrderHeader.Get(u => u.Id == id, includeProperties: "ApplicationUser");
             if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
             {
                 // this order by customer
                 var service = new SessionService();
                 Session session = service.Get(orderHeader.SessionId);
-                if (session.PaymentStatus.ToLower()=="paid")
+                if (session.PaymentStatus.ToLower() == "paid")
                 {
                     unitOfWork.OrderHeader.UpdateStipePaymentID(id, session.Id, session.PaymentIntentId);
                     unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
@@ -180,13 +179,13 @@ namespace ZStore.PL.Areas.Customer.Controllers
                 }
             }
             List<ShopingCart> shopingCarts = unitOfWork.ShopingCart
-                .GetAll(u=>u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+                .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
             unitOfWork.ShopingCart.RemoveRange(shopingCarts);
             unitOfWork.Save();
 
             return View(id);
         }
-		public IActionResult Plus(int CartId)
+        public IActionResult Plus(int CartId)
         {
             var cartFromDb = unitOfWork.ShopingCart.Get(u => u.Id == CartId);
             cartFromDb.Count += 1;
@@ -204,8 +203,8 @@ namespace ZStore.PL.Areas.Customer.Controllers
             }
             else
             {
-            cartFromDb.Count -= 1;
-            unitOfWork.ShopingCart.Update(cartFromDb);
+                cartFromDb.Count -= 1;
+                unitOfWork.ShopingCart.Update(cartFromDb);
 
             }
             unitOfWork.Save();
@@ -223,7 +222,8 @@ namespace ZStore.PL.Areas.Customer.Controllers
             if (shopingCart.Count <= 50)
                 return shopingCart.Product.Price;
             else
-            { if (shopingCart.Count<=100)
+            {
+                if (shopingCart.Count <= 100)
                     return shopingCart.Product.Price50;
                 else
                     return shopingCart.Product.Price100;
