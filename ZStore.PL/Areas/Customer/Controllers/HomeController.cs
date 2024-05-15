@@ -4,6 +4,8 @@ using System.Diagnostics;
 using ZStore.Application.Repository.IRepository;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using ZStore.Utility;
+using Microsoft.AspNetCore.Http;
 
 namespace Store.PL.Areas.Customer.Controllers
 {
@@ -51,15 +53,19 @@ namespace Store.PL.Areas.Customer.Controllers
                 //exist => update count
                 cartFromDb.Count += shopingCart.Count;
                 unitOfWork.ShopingCart.Update(cartFromDb);
+                unitOfWork.Save();
             }
             else
             {
                 //add cart record
 
-            unitOfWork.ShopingCart.Add(shopingCart);
+                unitOfWork.ShopingCart.Add(shopingCart);
+                unitOfWork.Save();
+                HttpContext.Session.SetInt32(SD.SessionCart,
+                     unitOfWork.ShopingCart.GetAll(u => u.ApplicationUserId == userId).Count());
             }
             TempData["success"] = "Cart was updated successfuly";
-            unitOfWork.Save();
+            
             return RedirectToAction(nameof(Index));
         }
 

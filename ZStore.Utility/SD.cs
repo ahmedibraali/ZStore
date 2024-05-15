@@ -24,8 +24,8 @@
 
 
 
+		public const string SessionCart = "SessionShoppingCart";
 
 
-
-	}
+    }
 }
